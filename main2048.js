@@ -150,7 +150,14 @@ function isgameover(){
 };
 
 function gameover(){
-    alert("gameover!");
+    /* 优化 Game Over 显示效果 */
+    var sure = document.getElementById('sure');
+    var modal = document.getElementById('modal');
+
+    modal.style.display = "block";
+    sure.addEventListener('click', function(){
+        modal.style.display = "none";
+    });
 };
 
 function moveLeft (){
