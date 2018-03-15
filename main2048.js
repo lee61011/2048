@@ -79,13 +79,25 @@ function generateOneNumber(){
     var randx = parseInt(Math.floor(Math.random() * 4));    // 一个随机的X坐标
     var randy = parseInt(Math.floor(Math.random() * 4));    // 一个随机的Y坐标
         // 判断这个随机位置是否可用
-    while (true) {
+    var times = 0;          // 优化随机数生成算法
+    while (times < 50) {
         if (board[randx][randy] == 0){      // 没有数字，说明位置可用
             break
         };
         // 重新生成位置
         randx = parseInt(Math.floor(Math.random() * 4));
         randy = parseInt(Math.floor(Math.random() * 4));
+        times ++;
+    };
+    if (times == 50) {      /*如果50次之内没有生成可用的随机位置,那么人工生成随机位置*/
+        for (var i=0; i<4; i++){
+            for (var j=0; j<4; j++){
+                if(board[i][j] == 0){       // 说明这是个空位置,那么让randx=i;randy=j
+                    randx = i;
+                    randy = j;
+                };
+            };
+        };
     };
 
     // 产生一个随机数字
