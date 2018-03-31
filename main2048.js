@@ -1,11 +1,33 @@
 var board = new Array();
 var score = 0;
-var hasConflicted = new Array();    // 解决一个格子内重复累加的BUG
+var hasConflicted = new Array();    //  解决一个格子内重复累加的BUG
+
+var startx = 0;                     //  声明移动端触摸开始坐标与触摸结束坐标
+var starty = 0;
+var endx = 0;
+var endy = 0;
 
 $(document).ready(function(){
-   newgame();
+    prepareForMobile();
+    newgame();
 });
 
+function prepareForMobile() {
+    if(documentWidth > 500){            //  PC端限制尺寸大小
+        gridContainerWidth = 500;
+        cellSpace = 20;
+        cellSideLength = 100;
+    }
+
+    $("#grid-container").css('width', gridContainerWidth - 2*cellSpace);
+    $("#grid-container").css('height', gridContainerWidth - 2*cellSpace);
+    $("#grid-container").css('padding', cellSpace);
+    $("#grid-container").css('border-radius', 0.02*gridContainerWidth);
+
+    $(".grid-cell").css('width',cellSideLength);
+    $(".grid-cell").css('height',cellSideLength);
+    $(".grid-cell").css('border-radius',0.02*cellSideLength);
+};
 
 function newgame(){
     // 初始化棋盘格
@@ -51,11 +73,11 @@ function updataBoardView(){
             if(board[i][j] == 0){
                 theNumberCell.css("width","0px");
                 theNumberCell.css("height","0px");
-                theNumberCell.css("top",getPosTop(i,j)+50);
-                theNumberCell.css("left",getPosLeft(i,j)+50);
+                theNumberCell.css("top",getPosTop(i,j)+cellSideLength/2);
+                theNumberCell.css("left",getPosLeft(i,j)+cellSideLength/2);
             } else {
-                theNumberCell.css("width","100px");
-                theNumberCell.css("height","100px");
+                theNumberCell.css("width",cellSideLength);
+                theNumberCell.css("height",cellSideLength);
                 theNumberCell.css("top",getPosTop(i,j));
                 theNumberCell.css("left",getPosLeft(i,j));
                 theNumberCell.css("background-color",getNumberBackgroundColor(board[i][j]));  // 背景色
@@ -66,6 +88,8 @@ function updataBoardView(){
             hasConflicted[i][j] = false;
         };
     };
+    $(".number-cell").css('line-height',cellSideLength+'px');
+    $(".number-cell").css('font-size',0.6*cellSideLength+'px');
 };
 
 /*随机生成数字函数*/
@@ -115,24 +139,28 @@ function generateOneNumber(){
 $(document).keydown(function(event){
     switch (event.keyCode){
         case 37:    // left
+            event.preventDefault();     //  阻止方向键按下 滚动条滚动的情况
             if ( moveLeft() ){
                 setTimeout("generateOneNumber()",210);  // 使用延时定时器优化动画效果
                 setTimeout("isgameover()",300);
             };
             break;
         case 38:    // up
+            event.preventDefault();
             if ( moveUp() ){
                 setTimeout("generateOneNumber()",210);
                 setTimeout("isgameover()",300);
             };
             break;
         case 39:    // right
+            event.preventDefault();
             if ( moveRight() ){
                 setTimeout("generateOneNumber()",210);
                 setTimeout("isgameover()",300);
             };
             break;
         case 40:    // down
+            event.preventDefault();
             if ( moveDown() ){
                 setTimeout("generateOneNumber()",210);
                 setTimeout("isgameover()",300);
@@ -141,6 +169,52 @@ $(document).keydown(function(event){
         default:    // default
             break;
     };
+});
+
+document.addEventListener('touchstart',function(event){
+    startx = event.touches[0].pageX;
+    starty = event.touches[0].pageY;
+});
+/*      报警告了
+document.addEventListener('touchmove', function(event){
+    event.preventDefault();
+});*/
+document.addEventListener('touchend',function(event){
+    endx = event.changedTouches[0].pageX;
+    endy = event.changedTouches[0].pageY;
+
+    var deltax = endx - startx;
+    var deltay = endy - starty;
+
+    if( Math.abs( deltax ) < 0.3*documentWidth && Math.abs( deltay ) < 0.3*documentWidth ){     //  设置一个阈值 .3倍的屏幕宽度  判断滑动距离是否超过这个阈值 没有则结束函数
+        return;
+    };
+
+    if( Math.abs( deltax ) >= Math.abs( deltay ) ){     //  x 方向
+        if( deltax > 0 ){       //  moveRight
+            if ( moveRight() ){
+                setTimeout("generateOneNumber()",210);
+                setTimeout("isgameover()",300);
+            };
+        } else {                //  moveLeft
+            if ( moveLeft() ){
+                setTimeout("generateOneNumber()",210);  // 使用延时定时器优化动画效果
+                setTimeout("isgameover()",300);
+            };
+        };
+    } else {                                            //  y 方向
+        if( deltay > 0 ){       //  moveDone
+            if ( moveDown() ){
+                setTimeout("generateOneNumber()",210);
+                setTimeout("isgameover()",300);
+            };
+        } else{                 //  moveUp
+            if ( moveUp() ){
+                setTimeout("generateOneNumber()",210);
+                setTimeout("isgameover()",300);
+            };
+        };
+    }
 });
 
 function isgameover(){

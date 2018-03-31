@@ -1,12 +1,17 @@
+documentWidth = window.screen.availWidth;   //  获取当前设备屏幕中可以使用的宽度
+gridContainerWidth = 0.92 * documentWidth;  //  左右边距宽度各为 4%
+cellSideLength = 0.18 * documentWidth;      //  小格子宽度为 屏幕宽度的 18%
+cellSpace = 0.04 * documentWidth;           //  小格子之间的间距为 4%
+
 
 /*计算每个格子距离顶端的距离*/
 function getPosTop(i,j){
-    return 20 + i*120;
+    return cellSpace + i*(cellSpace + cellSideLength);
 };
 
 /*计算每个格子距离左边的距离*/
 function getPosLeft(i,j){
-    return 20 + j*120;
+    return cellSpace + j*(cellSpace + cellSideLength);
 };
 
 function getNumberBackgroundColor(number){
